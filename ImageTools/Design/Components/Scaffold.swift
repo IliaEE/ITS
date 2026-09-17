@@ -82,6 +82,7 @@ struct ToolHeader: View {
             }
         }
         .padding(.top, Tokens.Space.xs)
+        .riseIn()
     }
 }
 
@@ -102,6 +103,7 @@ struct EmptyPickerLabel: View {
         .frame(maxWidth: .infinity, minHeight: 280)
         .background(RoundedRectangle(cornerRadius: Tokens.Radius.lg, style: .continuous).fill(Tokens.Colors.surface))
         .contentShape(RoundedRectangle(cornerRadius: Tokens.Radius.lg, style: .continuous))
+        .transition(.pop)
     }
 }
 
@@ -110,7 +112,6 @@ struct ImagePreview<Replace: View>: View {
     let meta: String
     var maxHeight: CGFloat = 300
     @ViewBuilder let replace: Replace
-    @State private var shown = false
 
     init(image: UIImage, meta: String, maxHeight: CGFloat = 300, @ViewBuilder replace: () -> Replace) {
         self.image = image
@@ -132,9 +133,7 @@ struct ImagePreview<Replace: View>: View {
             .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.lg, style: .continuous))
             T(meta, .bodySm, tone: .mute).padding(.horizontal, Tokens.Space.xs)
         }
-        .scaleEffect(shown ? 1 : 0.96)
-        .opacity(shown ? 1 : 0)
-        .onAppear { withAnimation(.gentle) { shown = true } }
+        .transition(.pop)
     }
 }
 
@@ -201,7 +200,6 @@ struct ResultSheet: View {
     @State private var busy = false
     @State private var done = false
     @State private var error: String?
-    @State private var shown = false
 
     var body: some View {
         ITCard(tone: .deep) {
@@ -225,7 +223,7 @@ struct ResultSheet: View {
                         Task {
                             busy = true
                             defer { busy = false }
-                            do { try await onPrimary(); done = true } catch { self.error = error.localizedDescription }
+                            do { try await onPrimary(); withAnimation(.snappy) { done = true }; Haptics.success() } catch { self.error = error.localizedDescription; Haptics.error() }
                         }
                     }
                     if let shareURL {
@@ -238,9 +236,8 @@ struct ResultSheet: View {
                 }
             }
         }
-        .offset(y: shown ? 0 : 24)
-        .opacity(shown ? 1 : 0)
-        .onAppear { withAnimation(.spring(response: 0.45, dampingFraction: 0.85)) { shown = true } }
+        .transition(.rise)
+        .onAppear { Haptics.success() }
         .alert("Could not save", isPresented: Binding(get: { error != nil }, set: { if !$0 { error = nil } })) {
             Button("OK") { error = nil }
         } message: { Text(error ?? "") }

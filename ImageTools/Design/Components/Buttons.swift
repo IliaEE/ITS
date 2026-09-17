@@ -52,9 +52,11 @@ struct PillLabel: View {
                 ProgressView().tint(foreground)
             } else {
                 if let icon { Image(systemName: icon).font(.system(size: 16, weight: .semibold)) }
-                Text(title).typo(.buttonMd)
+                Text(title).typo(.buttonMd).contentTransition(.numericText())
             }
         }
+        .animation(.snappy, value: title)
+        .animation(.snappy, value: loading)
         .foregroundStyle(foreground)
         .frame(maxWidth: fullWidth ? .infinity : nil)
         .frame(height: size == .lg ? 56 : size == .sm ? 36 : 48)

@@ -15,6 +15,7 @@
 		4079612468B57FB9EEC1B394 /* Saver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49947E0F6F1E7060640A1B53 /* Saver.swift */; };
 		4B1594A9E12EBD8B3B4415F5 /* SizeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67742418BB7E5E0CF533B12C /* SizeView.swift */; };
 		57AC6C0558CA636900855795 /* BlurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86EA1F25E0DBDE040CEFEFA /* BlurView.swift */; };
+		59BF81C9F26C2F37994682D4 /* Motion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B07AAEC5EECCC0E4F1BA23C /* Motion.swift */; };
 		5D68A5A86C6EF6BB31F73490 /* ImageToolsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04607F3935A4DDB72A4E0D2A /* ImageToolsApp.swift */; };
 		65927085256D74BEDA06AF68 /* Controls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B697A736EB75666B446EE6 /* Controls.swift */; };
 		695D88F64DC85D3728352C0B /* ImageEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC014B0C23ACAA7D4C0AA09C /* ImageEngine.swift */; };
@@ -29,6 +30,7 @@
 		C090325DD7051AFE07F99A83 /* PickedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF01F73F6C1E0C8C549FE077 /* PickedImage.swift */; };
 		C239076CD7E76789876E7F62 /* PDFMaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D730EA190D8CF00FCD34EED /* PDFMaker.swift */; };
 		D4FE2E1C3E17F02C123A6BD8 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61E161F83E9FCA33623F9D73 /* HomeView.swift */; };
+		D9E6B9C7E302A84FEF5487F0 /* CropStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C0852B4899F7308F2031E1 /* CropStage.swift */; };
 		F47CBD448F32E13A7AF30572 /* Tokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 825B12FC17317F5D67FDBE36 /* Tokens.swift */; };
 /* End PBXBuildFile section */
 
@@ -36,7 +38,9 @@
 		0083F670A3D456E16077B8F2 /* Naming.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Naming.swift; sourceTree = "<group>"; };
 		03B697A736EB75666B446EE6 /* Controls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controls.swift; sourceTree = "<group>"; };
 		04607F3935A4DDB72A4E0D2A /* ImageToolsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageToolsApp.swift; sourceTree = "<group>"; };
+		0B07AAEC5EECCC0E4F1BA23C /* Motion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Motion.swift; sourceTree = "<group>"; };
 		1FD5DF6695E354AFD94D08D9 /* Inter_600SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Inter_600SemiBold.ttf; sourceTree = "<group>"; };
+		22C0852B4899F7308F2031E1 /* CropStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CropStage.swift; sourceTree = "<group>"; };
 		49947E0F6F1E7060640A1B53 /* Saver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Saver.swift; sourceTree = "<group>"; };
 		53B49239499E1015BAA5F9D1 /* Inter_400Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Inter_400Regular.ttf; sourceTree = "<group>"; };
 		61E161F83E9FCA33623F9D73 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -82,6 +86,7 @@
 			children = (
 				B3F1F7168F9E8EBADF720789 /* Buttons.swift */,
 				03B697A736EB75666B446EE6 /* Controls.swift */,
+				22C0852B4899F7308F2031E1 /* CropStage.swift */,
 				CAA1A1AEEAE17E22700892A1 /* Scaffold.swift */,
 				8361B042FF90C9F66B499E42 /* Surfaces.swift */,
 			);
@@ -190,6 +195,7 @@
 		E2BFA03C12AA69C273D30961 /* Design */ = {
 			isa = PBXGroup;
 			children = (
+				0B07AAEC5EECCC0E4F1BA23C /* Motion.swift */,
 				825B12FC17317F5D67FDBE36 /* Tokens.swift */,
 				1566D5F00A94600868ABADC6 /* Components */,
 			);
@@ -286,9 +292,11 @@
 				92DC02A57B336ADBB86EE24D /* CompressView.swift in Sources */,
 				65927085256D74BEDA06AF68 /* Controls.swift in Sources */,
 				B184BBBA22BB2345613DABA3 /* ConvertView.swift in Sources */,
+				D9E6B9C7E302A84FEF5487F0 /* CropStage.swift in Sources */,
 				D4FE2E1C3E17F02C123A6BD8 /* HomeView.swift in Sources */,
 				695D88F64DC85D3728352C0B /* ImageEngine.swift in Sources */,
 				5D68A5A86C6EF6BB31F73490 /* ImageToolsApp.swift in Sources */,
+				59BF81C9F26C2F37994682D4 /* Motion.swift in Sources */,
 				0EC9895D515C90A4AC63ACE3 /* Naming.swift in Sources */,
 				C239076CD7E76789876E7F62 /* PDFMaker.swift in Sources */,
 				C090325DD7051AFE07F99A83 /* PickedImage.swift in Sources */,

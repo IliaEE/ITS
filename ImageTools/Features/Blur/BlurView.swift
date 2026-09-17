@@ -3,7 +3,7 @@ import PhotosUI
 
 struct BlurView: View {
     private let brushMin = 8.0, brushMax = 100.0
-    private let maxCanvasHeight: CGFloat = 380
+    private let maxCanvasHeight: CGFloat = 480
 
     @State private var items: [PhotosPickerItem] = []
     @State private var image: PickedImage?
@@ -17,101 +17,110 @@ struct BlurView: View {
     @State private var shareURL: URL?
     @State private var blurTask: Task<Void, Never>?
     @State private var drawing = false
-    @State private var stageShown = false
 
     private var brush: CGFloat { (brushMin + brushT * (brushMax - brushMin)).rounded() }
     private var sigma: CGFloat { 2 + strength * 30 } // canvas points
 
-    // The photo is drawn contained inside a canvas that spans the content width.
-    private struct Layout { let w, h, dw, dh, x, y, scale: CGFloat }
-    private func layout(width screen: CGFloat) -> Layout? {
+    // The canvas is exactly the photo, contained in the content width × maxCanvasHeight —
+    // no bars, so every point of the canvas is a point of the photo.
+    private struct Layout: Equatable { let w, h, scale: CGFloat }
+    private var layout: Layout? {
         guard let image else { return nil }
-        let w = screen - Tokens.pageInset * 2
-        let h = min(maxCanvasHeight, w * CGFloat(image.height) / CGFloat(image.width))
-        let s = min(w / CGFloat(image.width), h / CGFloat(image.height))
-        let dw = CGFloat(image.width) * s, dh = CGFloat(image.height) * s
-        return Layout(w: w, h: h, dw: dw, dh: dh, x: (w - dw) / 2, y: (h - dh) / 2, scale: CGFloat(image.width) / dw)
+        let cw = UIScreen.main.bounds.width - Tokens.pageInset * 2
+        let s = min(cw / CGFloat(image.width), maxCanvasHeight / CGFloat(image.height))
+        return Layout(w: CGFloat(image.width) * s, h: CGFloat(image.height) * s, scale: 1 / s)
     }
 
     var body: some View {
-        GeometryReader { geo in
-            ScreenScaffold(scroll: image == nil || result != nil) {
-                ToolHeader(title: "Blur", subtitle: "Paint over anything to hide it")
+        ScreenScaffold {
+            ToolHeader(title: "Blur", subtitle: "Paint over anything to hide it")
 
-                if image == nil {
-                    PhotosPicker(selection: $items, maxSelectionCount: 1, matching: .images) {
-                        EmptyPickerLabel(title: "Choose a photo", hint: "Then paint with your finger over faces, plates or text.")
-                    }
-                    .buttonStyle(ScaleButtonStyle(scaleTo: 0.985))
-                } else if let result {
-                    ImagePreview(image: result.image, meta: "\(Format_.dims(result.width, result.height)) · \(Format_.bytes(result.size))")
-                } else if let image, let lay = layout(width: geo.size.width) {
-                    VStack(alignment: .leading, spacing: Tokens.Space.sm) {
-                        stage(image: image, lay: lay)
-                        HStack {
-                            T(strokes.isEmpty ? "Drag to paint" : "\(strokes.count) stroke\(strokes.count > 1 ? "s" : "")", .bodySm, tone: .mute).lineLimit(1)
-                            Spacer(minLength: Tokens.Space.sm)
-                            HStack(spacing: Tokens.Space.xs) {
-                                IconPill(icon: "arrow.uturn.backward", label: "Undo", disabled: strokes.isEmpty) { _ = strokes.popLast() }
-                                IconPill(icon: "trash", label: "Clear", disabled: strokes.isEmpty) { strokes = [] }
-                                PhotosPicker(selection: $items, maxSelectionCount: 1, matching: .images) {
-                                    HStack(spacing: 6) {
-                                        Image(systemName: "arrow.triangle.2.circlepath").font(.system(size: 14, weight: .semibold))
-                                        Text("Photo").typo(.buttonSm)
-                                    }
-                                    .fixedSize()
-                                    .foregroundStyle(Tokens.Colors.onDark)
-                                    .frame(height: 36).padding(.horizontal, 12)
-                                    .background(Capsule().fill(Tokens.Colors.surface))
+            if image == nil {
+                PhotosPicker(selection: $items, maxSelectionCount: 1, matching: .images) {
+                    EmptyPickerLabel(title: "Choose a photo", hint: "Then paint with your finger over faces, plates or text.")
+                }
+                .buttonStyle(ScaleButtonStyle(scaleTo: 0.985))
+            } else if let result {
+                ImagePreview(image: result.image, meta: "\(Format_.dims(result.width, result.height)) · \(Format_.bytes(result.size))", maxHeight: 420)
+            } else if let image, let lay = layout {
+                VStack(alignment: .leading, spacing: Tokens.Space.sm) {
+                    stage(image: image, lay: lay).frame(maxWidth: .infinity)
+                    HStack {
+                        T(strokes.isEmpty ? "Drag to paint" : "\(strokes.count) stroke\(strokes.count > 1 ? "s" : "")", .bodySm, tone: .mute)
+                            .lineLimit(1)
+                            .contentTransition(.numericText())
+                            .animation(.snappy, value: strokes.count)
+                        Spacer(minLength: Tokens.Space.sm)
+                        HStack(spacing: Tokens.Space.xs) {
+                            IconPill(icon: "arrow.uturn.backward", label: "Undo", disabled: strokes.isEmpty) { withAnimation(.snappy) { _ = strokes.popLast() } }
+                            IconPill(icon: "trash", label: "Clear", disabled: strokes.isEmpty) { withAnimation(.snappy) { strokes = [] } }
+                            PhotosPicker(selection: $items, maxSelectionCount: 1, matching: .images) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "arrow.triangle.2.circlepath").font(.system(size: 14, weight: .semibold))
+                                    Text("Photo").typo(.buttonSm)
                                 }
-                                .buttonStyle(ScaleButtonStyle(scaleTo: 0.92))
+                                .fixedSize()
+                                .foregroundStyle(Tokens.Colors.onDark)
+                                .frame(height: 36).padding(.horizontal, 12)
+                                .background(Capsule().fill(Tokens.Colors.surface))
                             }
+                            .buttonStyle(ScaleButtonStyle(scaleTo: 0.92))
                         }
-                        .padding(.horizontal, Tokens.Space.xs)
                     }
-                    .scaleEffect(stageShown ? 1 : 0.96)
-                    .opacity(stageShown ? 1 : 0)
-                    .onAppear { withAnimation(.gentle) { stageShown = true } }
+                    .padding(.horizontal, Tokens.Space.xs)
                 }
+                .transition(.pop)
+            }
 
-                if image != nil, result == nil {
-                    SectionBlock(label: "Strength") {
-                        HStack(spacing: Tokens.Space.lg) {
-                            ITSlider(value: $strength)
-                            T("\(Int((strength * 100).rounded()))%", .headingSm).frame(width: 60, alignment: .trailing)
-                        }
-                    }
-                    SectionBlock(label: "Brush size", delay: 0.04) {
-                        HStack(spacing: Tokens.Space.lg) {
-                            ITSlider(value: $brushT)
-                            Circle().fill(Tokens.Colors.onDark).frame(width: brush * 0.4, height: brush * 0.4).frame(width: 40, height: 40)
-                            T("\(Int(brush))", .headingSm).frame(width: 60, alignment: .trailing)
-                        }
+            if image != nil, result == nil {
+                SectionBlock(label: "Strength") {
+                    HStack(spacing: Tokens.Space.lg) {
+                        ITSlider(value: $strength)
+                        T("\(Int((strength * 100).rounded()))%", .headingSm)
+                            .contentTransition(.numericText())
+                            .animation(.snappy, value: Int(strength * 100))
+                            .frame(width: 60, alignment: .trailing)
                     }
                 }
-
-                if let result {
-                    ResultSheet(
-                        title: "Blurred",
-                        stats: [ResultStat(label: "Strokes", value: String(strokes.count)), ResultStat(label: "Strength", value: "\(Int((strength * 100).rounded()))%"), ResultStat(label: "Size", value: Format_.bytes(result.size))],
-                        filename: Naming.output(tool: "blur", ext: "jpg"),
-                        primaryTitle: "Save to Photos",
-                        onPrimary: { try await Saver.saveToPhotos([NamedFile(data: result.data, name: Naming.output(tool: "blur", ext: "jpg"))]) },
-                        shareURL: shareURL,
-                        onReset: reset
-                    )
-                }
-            } footer: {
-                if image != nil, result == nil {
-                    PillButton(title: strokes.isEmpty ? "Paint over something first" : "Apply blur", size: .lg, loading: busy, disabled: strokes.isEmpty) { run(width: geo.size.width) }
+                SectionBlock(label: "Brush size", delay: 0.04) {
+                    HStack(spacing: Tokens.Space.lg) {
+                        ITSlider(value: $brushT)
+                        Circle().fill(Tokens.Colors.onDark)
+                            .frame(width: brush * 0.4, height: brush * 0.4)
+                            .frame(width: 40, height: 40)
+                            .animation(.press, value: brush)
+                        T("\(Int(brush))", .headingSm)
+                            .contentTransition(.numericText())
+                            .animation(.snappy, value: Int(brush))
+                            .frame(width: 60, alignment: .trailing)
+                    }
                 }
             }
+
+            if let result {
+                ResultSheet(
+                    title: "Blurred",
+                    stats: [ResultStat(label: "Strokes", value: String(strokes.count)), ResultStat(label: "Strength", value: "\(Int((strength * 100).rounded()))%"), ResultStat(label: "Size", value: Format_.bytes(result.size))],
+                    filename: Naming.output(tool: "blur", ext: "jpg"),
+                    primaryTitle: "Save to Photos",
+                    onPrimary: { try await Saver.saveToPhotos([NamedFile(data: result.data, name: Naming.output(tool: "blur", ext: "jpg"))]) },
+                    shareURL: shareURL,
+                    onReset: reset
+                )
+            }
+        } footer: {
+            if image != nil, result == nil {
+                PillButton(title: strokes.isEmpty ? "Paint over something first" : "Apply blur", size: .lg, loading: busy, disabled: strokes.isEmpty, action: run)
+            }
         }
+        .scrollDisabled(drawing)
+        .animation(.gentle, value: result == nil)
+        .animation(.gentle, value: image == nil)
         .onChange(of: items) { _, new in
             guard let item = new.first else { return }
             Task {
                 if let loaded = try? await PickedImage.load(item) {
-                    withAnimation(.gentle) { image = loaded; strokes = []; result = nil; blurredPreview = nil; stageShown = false }
+                    withAnimation(.gentle) { image = loaded; strokes = []; result = nil; blurredPreview = nil }
                     scheduleBlur()
                 }
                 items = []
@@ -122,11 +131,13 @@ struct BlurView: View {
     }
 
     // Base photo, then a blurred copy of it visible only inside the brush strokes.
+    // Both layers and the mask share the canvas coordinate space, so a stroke lands
+    // exactly under the finger.
     private func stage(image: PickedImage, lay: Layout) -> some View {
-        ZStack(alignment: .topLeading) {
-            Image(uiImage: image.preview).resizable().frame(width: lay.dw, height: lay.dh).offset(x: lay.x, y: lay.y)
+        ZStack {
+            Image(uiImage: image.preview).resizable()
             if let blurredPreview {
-                Image(uiImage: blurredPreview).resizable().frame(width: lay.dw, height: lay.dh).offset(x: lay.x, y: lay.y)
+                Image(uiImage: blurredPreview).resizable()
                     .mask {
                         Canvas { ctx, _ in
                             for (path, width) in BlurRenderer.strokesPath(strokes, transform: { $0 }) {
@@ -134,20 +145,22 @@ struct BlurView: View {
                             }
                         }
                     }
+                    .transition(.opacity)
             }
         }
         .frame(width: lay.w, height: lay.h)
-        .background(Tokens.Colors.canvas)
         .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.lg, style: .continuous))
         .contentShape(Rectangle())
-        .gesture(
+        .highPriorityGesture(
             DragGesture(minimumDistance: 0, coordinateSpace: .local)
                 .onChanged { g in
+                    let p = CGPoint(x: min(max(g.location.x, 0), lay.w), y: min(max(g.location.y, 0), lay.h))
                     if !drawing {
                         drawing = true
-                        strokes.append(Stroke(points: [g.location], width: brush))
+                        Haptics.tap()
+                        strokes.append(Stroke(points: [p], width: brush))
                     } else if !strokes.isEmpty {
-                        strokes[strokes.count - 1].points.append(g.location)
+                        strokes[strokes.count - 1].points.append(p)
                     }
                 }
                 .onEnded { _ in drawing = false }
@@ -157,27 +170,24 @@ struct BlurView: View {
     // The preview blur runs on the ≤1200 px preview at a sigma scaled from canvas points.
     private func scheduleBlur() {
         blurTask?.cancel()
-        guard let image, let cg = image.preview.cgImage else { return }
-        let s = sigma
+        guard let image, let cg = image.preview.cgImage, let lay = layout else { return }
+        let s = sigma * CGFloat(cg.width) / lay.w
         blurTask = Task.detached(priority: .userInitiated) {
             try? await Task.sleep(for: .milliseconds(90))
-            guard !Task.isCancelled else { return }
-            let canvasWidth = await UIScreen.main.bounds.width - Tokens.pageInset * 2
-            let previewPerPoint = CGFloat(cg.width) / canvasWidth
-            guard let out = BlurRenderer.blurred(cg, sigma: s * previewPerPoint), !Task.isCancelled else { return }
+            guard !Task.isCancelled, let out = BlurRenderer.blurred(cg, sigma: s), !Task.isCancelled else { return }
             let ui = UIImage(cgImage: out)
-            await MainActor.run { blurredPreview = ui }
+            await MainActor.run { withAnimation(.easeOut(duration: 0.2)) { blurredPreview = ui } }
         }
     }
 
-    private func run(width: CGFloat) {
-        guard let image, let lay = layout(width: width) else { return }
+    private func run() {
+        guard let image, let lay = layout else { return }
         busy = true
         let strokes = strokes, s = sigma
         Task.detached(priority: .userInitiated) {
             do {
                 let full = try image.fullImage()
-                let cg = try BlurRenderer.export(full: full, strokes: strokes, origin: CGPoint(x: lay.x, y: lay.y), scale: lay.scale, sigma: s)
+                let cg = try BlurRenderer.export(full: full, strokes: strokes, origin: .zero, scale: lay.scale, sigma: s)
                 let out = try ImageEngine.process(cg, format: .jpg, quality: 0.92)
                 await MainActor.run {
                     shareURL = Saver.temporaryURL(NamedFile(data: out.data, name: Naming.output(tool: "blur", ext: "jpg")))
@@ -185,10 +195,10 @@ struct BlurView: View {
                     busy = false
                 }
             } catch {
-                await MainActor.run { self.error = error.localizedDescription; busy = false }
+                await MainActor.run { self.error = error.localizedDescription; busy = false; Haptics.error() }
             }
         }
     }
 
-    private func reset() { withAnimation(.gentle) { image = nil; strokes = []; result = nil; blurredPreview = nil; shareURL = nil; stageShown = false } }
+    private func reset() { withAnimation(.gentle) { image = nil; strokes = []; result = nil; blurredPreview = nil; shareURL = nil } }
 }

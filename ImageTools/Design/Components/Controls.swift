@@ -15,7 +15,7 @@ struct Chip: View {
                 .frame(height: 40)
                 .padding(.horizontal, 16)
                 .background(Capsule().fill(selected ? Tokens.Colors.onDark : Tokens.Colors.surface))
-                .animation(.easeInOut(duration: 0.18), value: selected)
+                .animation(.snappy, value: selected)
         }
         .buttonStyle(ScaleButtonStyle(scaleTo: 0.95))
     }
@@ -32,6 +32,7 @@ struct Segmented<Key: Hashable>: View {
             ForEach(options, id: \.key) { option in
                 let active = option.key == selection
                 Button {
+                    Haptics.select()
                     withAnimation(.snappy) { selection = option.key }
                 } label: {
                     Text(option.label)
@@ -58,6 +59,7 @@ struct ITSlider: View {
     @Binding var value: Double
     private let thumb: CGFloat = 28
     @State private var dragging = false
+    @State private var lastTick = -1
 
     var body: some View {
         GeometryReader { geo in
@@ -79,6 +81,8 @@ struct ITSlider: View {
                     .onChanged { g in
                         dragging = true
                         value = min(1, max(0, Double((g.location.x - thumb / 2) / usable)))
+                        let tick = Int(value * 10)
+                        if tick != lastTick { lastTick = tick; Haptics.select() }
                     }
                     .onEnded { _ in dragging = false }
             )

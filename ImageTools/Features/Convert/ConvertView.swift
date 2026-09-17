@@ -80,6 +80,8 @@ struct ConvertView: View {
                 PillButton(title: busy ? "Converting…" : "\(images.count > 1 ? "Convert \(images.count) photos" : "Convert") to \(formatLabel)", size: .lg, loading: busy, action: run)
             }
         }
+        .animation(.gentle, value: result == nil)
+        .animation(.gentle, value: images.count)
         .onChange(of: items) { _, new in
             guard !new.isEmpty else { return }
             Task {
@@ -116,7 +118,7 @@ struct ConvertView: View {
                     busy = false
                 }
             } catch {
-                await MainActor.run { self.error = error.localizedDescription; busy = false }
+                await MainActor.run { self.error = error.localizedDescription; busy = false; Haptics.error() }
             }
         }
     }

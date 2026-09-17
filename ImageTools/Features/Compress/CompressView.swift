@@ -35,11 +35,15 @@ struct CompressView: View {
                     VStack(alignment: .leading, spacing: Tokens.Space.sm) {
                         HStack(alignment: .firstTextBaseline) {
                             T("\(Int((quality * 100).rounded()))%", .headingMd)
+                                .contentTransition(.numericText())
+                                .animation(.snappy, value: Int(quality * 100))
                             Spacer()
                             HStack(spacing: 6) {
                                 T("\(Format_.bytes(image.size)) → \(estimate.map(Format_.bytes) ?? "…")", .bodySm, tone: .mute)
-                                if let estimate { T(Format_.savings(image.size, estimate), .bodySm, tone: .success) }
+                                    .contentTransition(.numericText())
+                                if let estimate { T(Format_.savings(image.size, estimate), .bodySm, tone: .success).contentTransition(.numericText()) }
                             }
+                            .animation(.snappy, value: estimate)
                         }
                         ITSlider(value: $quality)
                         HStack { T("Smaller", .caption, tone: .faint); Spacer(); T("Sharper", .caption, tone: .faint) }
@@ -65,6 +69,8 @@ struct CompressView: View {
                 PillButton(title: "Compress" + (estimate.map { " · ≈ \(Format_.bytes($0))" } ?? ""), size: .lg, loading: busy, action: run)
             }
         }
+        .animation(.gentle, value: result == nil)
+        .animation(.gentle, value: image == nil)
         .onChange(of: items) { _, new in
             guard let item = new.first else { return }
             Task {
@@ -105,7 +111,7 @@ struct CompressView: View {
                     busy = false
                 }
             } catch {
-                await MainActor.run { self.error = error.localizedDescription; busy = false }
+                await MainActor.run { self.error = error.localizedDescription; busy = false; Haptics.error() }
             }
         }
     }

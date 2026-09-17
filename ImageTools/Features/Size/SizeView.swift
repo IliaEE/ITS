@@ -3,6 +3,7 @@ import PhotosUI
 
 struct SizeView: View {
     enum Mode: Hashable { case resize, fit }
+    enum FitStyle: Hashable { case fit, fill }
     private struct Preset: Identifiable { let id: String; let label: String; var percent: Double? = nil; var longest: Int? = nil }
     private struct Ratio: Identifiable { let id: String; let label: String; let w: Double; let h: Double }
 
@@ -23,17 +24,25 @@ struct SizeView: View {
     @State private var items: [PhotosPickerItem] = []
     @State private var images: [PickedImage] = []
     @State private var mode: Mode = .resize
+    @State private var fitStyle: FitStyle = .fit
     @State private var preset = "100"
     @State private var customW = ""
     @State private var customH = ""
     @State private var ratio = "1:1"
     @State private var background: UIColor = .white
     @State private var dpi: Int?
+    @State private var crop: CropModel?
     @State private var busy = false
     @State private var progress = 0.0
     @State private var results: [Processed]?
     @State private var error: String?
     @State private var shareURL: URL?
+
+    private var first: PickedImage? { images.first }
+    private var many: Bool { images.count > 1 }
+    private var filling: Bool { mode == .fit && fitStyle == .fill }
+    private var ratioValue: CGFloat { let r = ratios.first(where: { $0.id == ratio })!; return CGFloat(r.w / r.h) }
+    private var toolName: String { mode == .resize ? "resize" : filling ? "crop" : "fit" }
 
     // The same rule is applied to every photo in the batch, so targets are computed per image.
     private func resizeTarget(_ w: Int, _ h: Int) -> CGSize? {
@@ -51,25 +60,46 @@ struct SizeView: View {
     }
 
     private func fitTarget(_ w: Int, _ h: Int) -> CGSize {
-        let r = ratios.first(where: { $0.id == ratio })!
-        let want = r.w / r.h
+        let want = Double(ratioValue)
         var width = Double(w), height = Double(h)
         if want >= width / height { width = (height * want).rounded() } else { height = (width / want).rounded() }
         let s = min(1, maxSide / max(width, height))
         return CGSize(width: (width * s).rounded(), height: (height * s).rounded())
     }
 
-    private var first: PickedImage? { images.first }
-    private var many: Bool { images.count > 1 }
-    private var preview: CGSize? { first.flatMap { mode == .resize ? resizeTarget($0.width, $0.height) : fitTarget($0.width, $0.height) } }
-    private var toolName: String { mode == .resize ? "resize" : "fit" }
+    // Fill: the region the frame shows (moved by the user for the first photo, centred for the rest).
+    private func fillRect(_ img: PickedImage, index: Int) -> CGRect {
+        if index == 0, let crop { return crop.cropRect }
+        let model = CropModel(imageSize: CGSize(width: img.width, height: img.height), frame: CropModel.frameSize(aspect: ratioValue, maxWidth: 1000, maxHeight: 1000))
+        return model.cropRect
+    }
+
+    private var preview: CGSize? {
+        guard let first else { return nil }
+        if mode == .resize { return resizeTarget(first.width, first.height) }
+        if filling { let r = fillRect(first, index: 0); return CGSize(width: r.width.rounded(), height: r.height.rounded()) }
+        return fitTarget(first.width, first.height)
+    }
+
     private var cta: String {
-        let count = many ? "\(images.count) photos" : ""
+        let count = many ? "\(images.count) photos" : "photo"
         if mode == .resize {
             guard let p = preview else { return "Enter a size" }
             return many ? "Resize \(count)" : "Resize to \(Int(p.width)) × \(Int(p.height))"
         }
-        return "Fit \(count.isEmpty ? "photo" : count) to \(ratio)"
+        return filling ? "Crop \(count) to \(ratio)" : "Fit \(count) to \(ratio)"
+    }
+
+    private func refreshCrop() {
+        guard let first, filling else { return }
+        let frame = CropModel.frameSize(aspect: ratioValue, maxWidth: UIScreen.main.bounds.width - Tokens.pageInset * 2, maxHeight: 460)
+        if var c = crop, c.imageSize == CGSize(width: first.width, height: first.height) {
+            c.frame = frame
+            c.commit(offset: c.offset, zoom: c.zoom)
+            crop = c
+        } else {
+            crop = CropModel(imageSize: CGSize(width: first.width, height: first.height), frame: frame)
+        }
     }
 
     var body: some View {
@@ -88,6 +118,8 @@ struct SizeView: View {
                     }
                     .buttonStyle(ScaleButtonStyle())
                 }
+            } else if let first, filling, results == nil, let cropBinding = Binding($crop) {
+                CropStage(image: first.preview, model: cropBinding)
             } else if let first {
                 let shown = results?.first
                 let meta: String = {
@@ -121,25 +153,34 @@ struct SizeView: View {
                                 T("×", .bodyMd, tone: .faint)
                                 NumberField(placeholder: "Height", text: $customH).onChange(of: customH) { _, v in if !v.isEmpty { customW = "" } }
                             }
-                            .transition(.opacity)
+                            .transition(.pop)
                         }
                         if let p = preview {
                             T(many ? "First photo → \(Int(p.width)) × \(Int(p.height)) px, others scaled the same way" : "Output \(Int(p.width)) × \(Int(p.height)) px", .caption, tone: .faint)
+                                .contentTransition(.numericText())
                         }
                     }
                 } else {
                     SectionBlock(label: "Aspect ratio", delay: 0.04) {
                         WrapLayout { ForEach(ratios) { r in Chip(label: r.label, selected: ratio == r.id) { ratio = r.id } } }
-                        if let p = preview { T("Canvas \(Int(p.width)) × \(Int(p.height)) px, photo centered, nothing cropped", .caption, tone: .faint) }
                     }
-                    SectionBlock(label: "Background", delay: 0.08) {
-                        WrapLayout {
-                            Chip(label: "White", selected: background == .white) { background = .white }
-                            Chip(label: "Black", selected: background == .black) { background = .black }
+                    SectionBlock(label: "Style", delay: 0.08) {
+                        Segmented(options: [(FitStyle.fit, "Fit · add borders"), (.fill, "Fill · move photo")], selection: $fitStyle)
+                        if let p = preview {
+                            T(filling ? "Crop \(Int(p.width)) × \(Int(p.height)) px — drag the photo to choose the framing"
+                                      : "Canvas \(Int(p.width)) × \(Int(p.height)) px, photo centered, nothing cropped", .caption, tone: .faint)
+                        }
+                    }
+                    if !filling {
+                        SectionBlock(label: "Background", delay: 0.12) {
+                            WrapLayout {
+                                Chip(label: "White", selected: background == .white) { background = .white }
+                                Chip(label: "Black", selected: background == .black) { background = .black }
+                            }
                         }
                     }
                 }
-                SectionBlock(label: "DPI", delay: 0.12) {
+                SectionBlock(label: "DPI", delay: 0.16) {
                     WrapLayout {
                         Chip(label: "Keep", selected: dpi == nil) { dpi = nil }
                         ForEach(dpis, id: \.self) { d in Chip(label: "\(d) DPI", selected: dpi == d) { dpi = d } }
@@ -150,8 +191,9 @@ struct SizeView: View {
             }
 
             if let first, let results, let r = results.first {
+                let verb = mode == .resize ? "resized" : filling ? "cropped" : "fitted"
                 ResultSheet(
-                    title: mode == .resize ? (many ? "\(results.count) photos resized" : "Resized") : (many ? "\(results.count) photos fitted" : "Fitted"),
+                    title: many ? "\(results.count) photos \(verb)" : verb.capitalized,
                     stats: many
                         ? [ResultStat(label: "Photos", value: String(results.count)), ResultStat(label: "First", value: Format_.dims(r.width, r.height)), ResultStat(label: "Total", value: Format_.bytes(results.reduce(0) { $0 + $1.size }))]
                         : [ResultStat(label: "Before", value: Format_.dims(first.width, first.height)), ResultStat(label: "After", value: Format_.dims(r.width, r.height)), ResultStat(label: dpi == nil ? "Size" : "DPI", value: dpi.map(String.init) ?? Format_.bytes(r.size))],
@@ -171,19 +213,32 @@ struct SizeView: View {
             guard !new.isEmpty else { return }
             Task {
                 let loaded = await PickedImage.load(new)
-                if !loaded.isEmpty { withAnimation(.gentle) { images = loaded; results = nil; preset = "100" } }
+                if !loaded.isEmpty {
+                    withAnimation(.gentle) { images = loaded; results = nil; preset = "100"; crop = nil }
+                    refreshCrop()
+                }
                 items = []
             }
         }
+        .onChange(of: mode) { _, _ in refreshCrop() }
+        .onChange(of: fitStyle) { _, _ in refreshCrop() }
+        .onChange(of: ratio) { _, _ in withAnimation(.snappy) { refreshCrop() } }
         .animation(.gentle, value: mode)
+        .animation(.gentle, value: fitStyle)
         .animation(.gentle, value: preset)
+        .animation(.gentle, value: results == nil)
+        .animation(.gentle, value: images.count)
         .alert("Could not process the photo", isPresented: Binding(get: { error != nil }, set: { if !$0 { error = nil } })) { Button("OK") { error = nil } } message: { Text(error ?? "") }
     }
 
     private func run() {
         busy = true
         progress = 0
-        let images = images, mode = mode, dpi = dpi, background = background
+        let images = images, mode = mode, filling = filling, dpi = dpi, background = background
+        let resizeTargets = images.map { resizeTarget($0.width, $0.height) }
+        let fitTargets = images.map { fitTarget($0.width, $0.height) }
+        let fillRects = images.enumerated().map { fillRect($1, index: $0) }
+        let maxSide = maxSide
         Task.detached(priority: .userInitiated) {
             do {
                 var out: [Processed] = []
@@ -191,12 +246,15 @@ struct SizeView: View {
                     let full = try img.fullImage()
                     let processed: Processed
                     if mode == .resize {
-                        guard let target = await resizeTarget(img.width, img.height) else { throw SizeError.noSize }
-                        let fmt: OutputFormat = img.format == "PNG" ? .png : .jpg
-                        processed = try ImageEngine.process(ImageEngine.resize(full, to: target), format: fmt, dpi: dpi)
+                        guard let target = resizeTargets[i] else { throw SizeError.noSize }
+                        processed = try ImageEngine.process(ImageEngine.resize(full, to: target), format: img.format == "PNG" ? .png : .jpg, dpi: dpi)
+                    } else if filling {
+                        var cg = ImageEngine.crop(full, to: fillRects[i])
+                        let s = min(1, maxSide / Double(max(cg.width, cg.height)))
+                        if s < 1 { cg = ImageEngine.resize(cg, to: CGSize(width: (Double(cg.width) * s).rounded(), height: (Double(cg.height) * s).rounded())) }
+                        processed = try ImageEngine.process(cg, format: .jpg, quality: 0.95, dpi: dpi)
                     } else {
-                        let target = await fitTarget(img.width, img.height)
-                        processed = try ImageEngine.process(ImageEngine.pad(full, canvas: target, background: background), format: .jpg, quality: 0.95, dpi: dpi)
+                        processed = try ImageEngine.process(ImageEngine.pad(full, canvas: fitTargets[i], background: background), format: .jpg, quality: 0.95, dpi: dpi)
                     }
                     out.append(processed)
                     let p = Double(i + 1) / Double(images.count)
@@ -211,12 +269,12 @@ struct SizeView: View {
                     busy = false
                 }
             } catch {
-                await MainActor.run { self.error = error.localizedDescription; busy = false }
+                await MainActor.run { self.error = error.localizedDescription; busy = false; Haptics.error() }
             }
         }
     }
 
-    private func reset() { withAnimation(.gentle) { images = []; results = nil; shareURL = nil } }
+    private func reset() { withAnimation(.gentle) { images = []; results = nil; shareURL = nil; crop = nil } }
 
     enum SizeError: LocalizedError {
         case noSize

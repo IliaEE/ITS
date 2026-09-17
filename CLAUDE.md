@@ -28,7 +28,8 @@ Bundle id `com.imagetools.app`, team `NH5YK4W96C`, automatic signing.
 
 - `ImageTools/App` — `ImageToolsApp` + `RootView` (NavigationStack, `Tool` enum drives `navigationDestination`).
 - `ImageTools/Design/Tokens.swift` — colours, type scale (`Typo` + `T` text view), radii, spacing, springs. Inter is bundled (`Resources/Fonts`, OFL); PostScript names are `Inter-Regular/-Medium/-SemiBold/-Bold`.
-- `ImageTools/Design/Components` — `PillButton`/`PillLabel`, `ScaleButtonStyle`, `Chip`, `Segmented` (matchedGeometryEffect), `ITSlider`, `NumberField`, `WrapLayout`, `ScreenScaffold` (scroll + sticky footer), `ToolHeader`, `EmptyPickerLabel`, `ImagePreview`, `ThumbStrip`, `ResultSheet`.
+- `ImageTools/Design/Components` — `PillButton`/`PillLabel`, `ScaleButtonStyle`, `Chip`, `Segmented` (matchedGeometryEffect), `ITSlider` (tick haptic every 10 %), `NumberField`, `WrapLayout`, `ScreenScaffold` (scroll + sticky footer), `ToolHeader`, `EmptyPickerLabel`, `ImagePreview`, `ThumbStrip`, `ResultSheet`, `CropStage` (+ `CropModel`: drag/pinch inside a fixed-ratio frame, all math in image pixels).
+- `ImageTools/Design/Motion.swift` — `.rise` / `.pop` transitions, `riseIn()` modifier, `Haptics`. Screens animate on state changes via `.animation(.gentle, value:)` so inserted/removed blocks use these transitions.
 - `ImageTools/Engine` — `ImageEngine` (ImageIO decode with orientation, encode with DPI, resize, pad), `PDFMaker` (A4 pages, JPEG streams), `BlurRenderer` (Core Image blur + mask), `PickedImage` (PhotosPicker → bytes + preview), `Naming`, `Saver` (Photos add-only, temp file for share).
 - `ImageTools/Features/<Tool>/<Tool>View.swift` — one screen per tool, state lives in the view.
 
@@ -37,9 +38,13 @@ Bundle id `com.imagetools.app`, team `NH5YK4W96C`, automatic signing.
 - Canvas is true black; the only other dark step is `surface` `#16181A`. No shadows — depth comes from those two steps and hairlines.
 - Primary CTA is a **white pill with black text**. Cobalt `#494FDF` appears at most once per screen (featured card, result check mark).
 - All buttons/chips are capsules; cards 20 pt; inputs 12 pt. Inter everywhere; display sizes use tight negative tracking.
-- Motion: every tappable uses `ScaleButtonStyle` (spring to 0.97 + light haptic); sections use `SectionBlock` (fade + slide); results slide up in `ResultSheet`. Prefer springs.
+- Motion: every tappable uses `ScaleButtonStyle` (spring to 0.97 + light haptic); sections use `SectionBlock` (fade + slide); previews `.pop`, results `.rise`; numbers that change use `.contentTransition(.numericText())`. Prefer springs.
 
 ## Gotchas
+
+- Blur canvas = the photo itself (no letterboxing). Don't `.frame(w, h)` a ZStack and then `.offset` its children — the frame already centres, so the offset doubles on portrait photos and the brush lands away from the finger (day-two bug).
+- Image Size "Fill · move photo" crops the full-resolution image with `CropModel.cropRect` (frame ratio, whole pixels). The first photo uses the user's framing; other photos in a batch are centre-cropped.
+- `context(width:height:alpha:)` picks an RGBX context for opaque photos — ImageIO logs `AlphaPremulLast` errors and doubles memory otherwise.
 
 - Never put `.ignoresSafeArea()` on a view inside `safeAreaInset` — it expands to the whole screen and covers the content (that was the blank-screen bug on day one).
 - `PhotosPicker` bound to an array is multi-select; pass `maxSelectionCount: 1` where one photo is expected or it will not auto-dismiss.
