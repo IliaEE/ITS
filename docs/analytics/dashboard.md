@@ -1,7 +1,10 @@
-# Дашборд PostHog — что должно быть на нём
+# Дашборд PostHog
 
-Проект: `284992` (EU). Создаётся скриптом через API — нужен **personal API key** (`phx_…`)
-со скоупами `insight:write` и `dashboard:write`; проектный токен `phc_…` умеет только слать события.
+**Создан:** https://eu.posthog.com/project/284992/dashboard/976543 — 18 панелей.
+
+Пересоздать: `python3 docs/analytics/create_dashboard.py`. Ключ в репозитории не лежит: скрипт читает
+personal API key из `~/.posthog/personal_api_key` (или `POSTHOG_PERSONAL_KEY`). Нужны скоупы
+`insight:write` и `dashboard:write` — проектный токен `phc_…` умеет только слать события.
 
 ## Панели
 
@@ -20,7 +23,10 @@
 | 11 | Ошибки | Тренд | `job_failed` по `reason` | что ломается у живых людей |
 | 12 | Пейвол | Воронка | `paywall_shown → paywall_closed(purchased=true)`, разрез `trigger` | где пейвол показывается и где покупают |
 | 13 | Запросы функций | Тренд | `feature_requested` по `features` | что строить следующим |
-| 14 | Возвраты | Retention | `tool_opened` | возвращаются ли вообще |
+| 14 | Возвраты | Retention | `tool_opened`, по неделям | возвращаются ли вообще |
+
+Фактически панелей 18: разрезы Image Size (режимы / пресеты / DPI) и Blur (сила / кисть) разведены
+по отдельным плиткам, плюс динамика работ по дням.
 
 ## Почему именно так
 
