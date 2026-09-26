@@ -61,7 +61,7 @@
 		B4B1C6C3A72C5B4148053F38 /* Inter_500Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Inter_500Medium.ttf; sourceTree = "<group>"; };
 		C52D669C2F61649F224EBAA2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CAA1A1AEEAE17E22700892A1 /* Scaffold.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scaffold.swift; sourceTree = "<group>"; };
-		CFA01DC955E8D9B7473C9DAF /* ImageTools.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ImageTools.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CFA01DC955E8D9B7473C9DAF /* ImageTools.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageTools.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDE932BCDEC126FD240097FC /* Inter_700Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Inter_700Bold.ttf; sourceTree = "<group>"; };
 		DF01F73F6C1E0C8C549FE077 /* PickedImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickedImage.swift; sourceTree = "<group>"; };
 		E023F383CC3AFAC978633523 /* ConvertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertView.swift; sourceTree = "<group>"; };
@@ -350,6 +350,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = ImageTools/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -499,6 +500,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = ImageTools/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
