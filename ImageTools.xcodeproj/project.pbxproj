@@ -11,17 +11,20 @@
 		0577A121F157582B066162C7 /* Inter_400Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 53B49239499E1015BAA5F9D1 /* Inter_400Regular.ttf */; };
 		0EC9895D515C90A4AC63ACE3 /* Naming.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0083F670A3D456E16077B8F2 /* Naming.swift */; };
 		2F1F28250F811DE2DCED49ED /* Inter_500Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B4B1C6C3A72C5B4148053F38 /* Inter_500Medium.ttf */; };
+		312CA043FA698BBC8DDCD978 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25432854C6073C91DBC1183A /* Store.swift */; };
 		400FDC76D6BAD09FE1A4A849 /* BlurRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79880578007E58706A4439C0 /* BlurRenderer.swift */; };
 		4079612468B57FB9EEC1B394 /* Saver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49947E0F6F1E7060640A1B53 /* Saver.swift */; };
 		4B1594A9E12EBD8B3B4415F5 /* SizeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67742418BB7E5E0CF533B12C /* SizeView.swift */; };
 		57AC6C0558CA636900855795 /* BlurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86EA1F25E0DBDE040CEFEFA /* BlurView.swift */; };
 		59BF81C9F26C2F37994682D4 /* Motion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B07AAEC5EECCC0E4F1BA23C /* Motion.swift */; };
 		5D68A5A86C6EF6BB31F73490 /* ImageToolsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04607F3935A4DDB72A4E0D2A /* ImageToolsApp.swift */; };
+		5F1EF6E2135E58323B576F53 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = C64E56BDF772292EBC0FC7AD /* RevenueCat */; };
 		65927085256D74BEDA06AF68 /* Controls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B697A736EB75666B446EE6 /* Controls.swift */; };
 		695D88F64DC85D3728352C0B /* ImageEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC014B0C23ACAA7D4C0AA09C /* ImageEngine.swift */; };
 		6C668BCC2181FC3DF392D17B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C52D669C2F61649F224EBAA2 /* Assets.xcassets */; };
 		7035ED36292D7BB5FA249432 /* Scaffold.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAA1A1AEEAE17E22700892A1 /* Scaffold.swift */; };
 		8610A3102AF1BA3B44ED011E /* Buttons.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F1F7168F9E8EBADF720789 /* Buttons.swift */; };
+		900D3B1C63E5FFEB37517360 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = 085DE5B1534C696136BE8474 /* RevenueCatUI */; };
 		92DC02A57B336ADBB86EE24D /* CompressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C92529B43A516FB37A18DE /* CompressView.swift */; };
 		A36E9F9C9ECE0EE3D78B1923 /* Inter_700Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DDE932BCDEC126FD240097FC /* Inter_700Bold.ttf */; };
 		A5FA9378885DEEE63A258175 /* Surfaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8361B042FF90C9F66B499E42 /* Surfaces.swift */; };
@@ -41,6 +44,7 @@
 		0B07AAEC5EECCC0E4F1BA23C /* Motion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Motion.swift; sourceTree = "<group>"; };
 		1FD5DF6695E354AFD94D08D9 /* Inter_600SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Inter_600SemiBold.ttf; sourceTree = "<group>"; };
 		22C0852B4899F7308F2031E1 /* CropStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CropStage.swift; sourceTree = "<group>"; };
+		25432854C6073C91DBC1183A /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		49947E0F6F1E7060640A1B53 /* Saver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Saver.swift; sourceTree = "<group>"; };
 		53B49239499E1015BAA5F9D1 /* Inter_400Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Inter_400Regular.ttf; sourceTree = "<group>"; };
 		61E161F83E9FCA33623F9D73 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -63,6 +67,18 @@
 		E023F383CC3AFAC978633523 /* ConvertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertView.swift; sourceTree = "<group>"; };
 		F86EA1F25E0DBDE040CEFEFA /* BlurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CD4CF1820106854A552E541F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5F1EF6E2135E58323B576F53 /* RevenueCat in Frameworks */,
+				900D3B1C63E5FFEB37517360 /* RevenueCatUI in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		03BA7E4442888FD7250080D0 /* Blur */ = {
@@ -93,6 +109,14 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
+		160D626E5D5C70F38DDEDCB7 /* Purchases */ = {
+			isa = PBXGroup;
+			children = (
+				25432854C6073C91DBC1183A /* Store.swift */,
+			);
+			path = Purchases;
+			sourceTree = "<group>";
+		};
 		2658DDE32FBC01E3865EDB7C /* ImageTools */ = {
 			isa = PBXGroup;
 			children = (
@@ -101,6 +125,7 @@
 				E2BFA03C12AA69C273D30961 /* Design */,
 				629E32ABE923E94296B24EFB /* Engine */,
 				9EAB5730DE91566B6ACF22E3 /* Features */,
+				160D626E5D5C70F38DDEDCB7 /* Purchases */,
 				3EB90F43700F3112453C14D3 /* Resources */,
 			);
 			path = ImageTools;
@@ -219,6 +244,7 @@
 			buildPhases = (
 				4234B66F93872C5DCD693583 /* Sources */,
 				B000C795DB86476BD2F6BB98 /* Resources */,
+				CD4CF1820106854A552E541F /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -226,6 +252,8 @@
 			);
 			name = ImageTools;
 			packageProductDependencies = (
+				C64E56BDF772292EBC0FC7AD /* RevenueCat */,
+				085DE5B1534C696136BE8474 /* RevenueCatUI */,
 			);
 			productName = ImageTools;
 			productReference = CFA01DC955E8D9B7473C9DAF /* ImageTools.app */;
@@ -255,6 +283,9 @@
 			);
 			mainGroup = F2195B2031A8CFFE1D202329;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				2048C5E06ABD4428F6985992 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DB5FB6A8A962DC404BC6FAED /* Products */;
 			projectDirPath = "";
@@ -303,6 +334,7 @@
 				4079612468B57FB9EEC1B394 /* Saver.swift in Sources */,
 				7035ED36292D7BB5FA249432 /* Scaffold.swift in Sources */,
 				4B1594A9E12EBD8B3B4415F5 /* SizeView.swift in Sources */,
+				312CA043FA698BBC8DDCD978 /* Store.swift in Sources */,
 				A5FA9378885DEEE63A258175 /* Surfaces.swift in Sources */,
 				F47CBD448F32E13A7AF30572 /* Tokens.swift in Sources */,
 			);
@@ -323,7 +355,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.imagetools.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wottaapp.imagetools;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -385,7 +417,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -448,7 +480,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -472,7 +504,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.imagetools.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.wottaapp.imagetools;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -500,6 +532,30 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2048C5E06ABD4428F6985992 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		085DE5B1534C696136BE8474 /* RevenueCatUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2048C5E06ABD4428F6985992 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = RevenueCatUI;
+		};
+		C64E56BDF772292EBC0FC7AD /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2048C5E06ABD4428F6985992 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = RevenueCat;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3C5EEE7760C902667759AE25 /* Project object */;
 }

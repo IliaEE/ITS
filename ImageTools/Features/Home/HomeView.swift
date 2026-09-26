@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct HomeView: View {
+    let onSelect: (Tool) -> Void
+
     private struct Card { let tool: Tool; let icon: String; let title: String; let desc: String; let featured: Bool }
 
     private let cards: [Card] = [
@@ -25,7 +27,7 @@ struct HomeView: View {
 
             VStack(spacing: Tokens.Space.md) {
                 ForEach(Array(cards.enumerated()), id: \.element.tool) { i, card in
-                    NavigationLink(value: card.tool) {
+                    Button { onSelect(card.tool) } label: {
                         HStack(spacing: Tokens.Space.lg) {
                             IconCircle(systemName: card.icon, tone: card.featured ? .ink : .default)
                             VStack(alignment: .leading, spacing: Tokens.Space.xxs) {
@@ -46,7 +48,7 @@ struct HomeView: View {
                 }
             }
 
-            T("Free · No account · Nothing is uploaded", .caption, tone: .faint)
+            T("No account · Works offline · Nothing is uploaded", .caption, tone: .faint)
                 .frame(maxWidth: .infinity)
                 .padding(.top, Tokens.Space.sm)
                 .opacity(shown ? 1 : 0)
