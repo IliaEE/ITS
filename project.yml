@@ -18,6 +18,9 @@ packages:
   RevenueCat:
     url: https://github.com/RevenueCat/purchases-ios-spm.git
     from: 5.0.0
+  PostHog:
+    url: https://github.com/PostHog/posthog-ios.git
+    from: 3.56.0
 targets:
   ImageTools:
     type: application
@@ -29,6 +32,8 @@ targets:
         product: RevenueCat
       - package: RevenueCat
         product: RevenueCatUI
+      - package: PostHog
+        product: PostHog
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.wottaapp.imagetools

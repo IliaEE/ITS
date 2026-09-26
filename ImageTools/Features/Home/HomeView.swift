@@ -48,7 +48,7 @@ struct HomeView: View {
                 }
             }
 
-            T("No account · Works offline · Nothing is uploaded", .caption, tone: .faint)
+            T("No account · Works offline · Photos stay on device", .caption, tone: .faint)
                 .frame(maxWidth: .infinity)
                 .padding(.top, Tokens.Space.sm)
                 .opacity(shown ? 1 : 0)

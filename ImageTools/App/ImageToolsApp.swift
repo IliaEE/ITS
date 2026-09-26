@@ -3,7 +3,10 @@ import RevenueCatUI
 
 @main
 struct ImageToolsApp: App {
-    init() { Store.shared.configure() }
+    init() {
+        Analytics.start()
+        Store.shared.configure()
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -34,9 +37,9 @@ struct RootView: View {
         // Every tool is Pro, so the paywall opens by itself as soon as we know the user is locked.
         // It keeps its close button: a reviewer (and a lapsed subscriber) must be able to look around.
         .onChange(of: store.isLocked, initial: true) { _, locked in
-            if locked { showPaywall = true }
+            if locked { present(trigger: "launch") }
         }
-        .fullScreenCover(isPresented: $showPaywall) {
+        .fullScreenCover(isPresented: $showPaywall, onDismiss: { Analytics.paywallClosed(purchased: store.isPro) }) {
             PaywallView(displayCloseButton: true)
                 .preferredColorScheme(.dark)
         }
@@ -44,10 +47,17 @@ struct RootView: View {
 
     private func open(_ tool: Tool) {
         if store.isLocked {
-            showPaywall = true
+            present(trigger: tool.rawValue)
         } else {
+            Analytics.toolOpened(tool)
             path.append(tool)
         }
+    }
+
+    private func present(trigger: String) {
+        guard !showPaywall else { return }
+        Analytics.paywallShown(trigger: trigger)
+        showPaywall = true
     }
 }
 

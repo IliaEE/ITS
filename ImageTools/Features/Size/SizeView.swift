@@ -194,12 +194,14 @@ struct SizeView: View {
                 let verb = mode == .resize ? "resized" : filling ? "cropped" : "fitted"
                 ResultSheet(
                     title: many ? "\(results.count) photos \(verb)" : verb.capitalized,
+                    tool: toolName,
                     stats: many
                         ? [ResultStat(label: "Photos", value: String(results.count)), ResultStat(label: "First", value: Format_.dims(r.width, r.height)), ResultStat(label: "Total", value: Format_.bytes(results.reduce(0) { $0 + $1.size }))]
                         : [ResultStat(label: "Before", value: Format_.dims(first.width, first.height)), ResultStat(label: "After", value: Format_.dims(r.width, r.height)), ResultStat(label: dpi == nil ? "Size" : "DPI", value: dpi.map(String.init) ?? Format_.bytes(r.size))],
                     filename: Naming.output(tool: toolName, ext: r.format.ext, index: 0, total: results.count),
                     primaryTitle: many ? "Save all to Photos" : "Save to Photos",
                     onPrimary: { try await Saver.saveToPhotos(results.enumerated().map { NamedFile(data: $1.data, name: Naming.output(tool: toolName, ext: $1.format.ext, index: $0, total: results.count)) }) },
+                    count: results.count,
                     shareURL: many ? nil : shareURL,
                     onReset: reset
                 )
@@ -215,6 +217,7 @@ struct SizeView: View {
                 let loaded = await PickedImage.load(new)
                 if !loaded.isEmpty {
                     withAnimation(.gentle) { images = loaded; results = nil; preset = "100"; crop = nil }
+                    Analytics.photosPicked(.size, count: loaded.count, format: loaded[0].format)
                     refreshCrop()
                 }
                 items = []
@@ -235,6 +238,13 @@ struct SizeView: View {
         busy = true
         progress = 0
         let images = images, mode = mode, filling = filling, dpi = dpi, background = background
+        let startedAt = Date()
+        Analytics.jobStarted(.size, count: images.count, options: [
+            "mode": mode == .resize ? "resize" : (filling ? "fill" : "fit"),
+            "preset": preset,
+            "ratio": ratio,
+            "dpi": dpi.map(String.init) ?? "keep",
+        ])
         let resizeTargets = images.map { resizeTarget($0.width, $0.height) }
         let fitTargets = images.map { fitTarget($0.width, $0.height) }
         let fillRects = images.enumerated().map { fillRect($1, index: $0) }
@@ -267,9 +277,15 @@ struct SizeView: View {
                     }
                     withAnimation(.gentle) { results = finished }
                     busy = false
+                    Analytics.jobFinished(.size, count: finished.count, startedAt: startedAt,
+                                          inBytes: images.reduce(0) { $0 + $1.size },
+                                          outBytes: finished.reduce(0) { $0 + $1.size })
                 }
             } catch {
-                await MainActor.run { self.error = error.localizedDescription; busy = false; Haptics.error() }
+                await MainActor.run {
+                    self.error = error.localizedDescription; busy = false; Haptics.error()
+                    Analytics.jobFailed(.size, reason: error.localizedDescription)
+                }
             }
         }
     }

@@ -1,6 +1,6 @@
 # Image Tools (iOS, SwiftUI)
 
-Native iOS app, SwiftUI, iOS 18+. One dependency: RevenueCat (purchases + dashboard paywall). Four on-device photo utilities, no server, no AI:
+Native iOS app, SwiftUI, iOS 18+. Two dependencies: RevenueCat (purchases + dashboard paywall) and PostHog (analytics). Four on-device photo utilities, no server, no AI:
 **Convert** (HEIC/JPG/PNG + photo→PDF), **Image Size** (resize, batch, fit-to-ratio, DPI),
 **Compress** (quality slider with live size), **Blur** (brush that blurs what you paint, adjustable
 strength and brush size). A 1:1 port of the Expo prototype in `../ImageTools_expo`; product research
@@ -34,6 +34,22 @@ RevenueCat SPM package (`purchases-ios-spm`, from 5.0.0, products `RevenueCat` +
 - `ImageTools/Engine` — `ImageEngine` (ImageIO decode with orientation, encode with DPI, resize, pad), `PDFMaker` (A4 pages, JPEG streams), `BlurRenderer` (Core Image blur + mask), `PickedImage` (PhotosPicker → bytes + preview), `Naming`, `Saver` (Photos add-only, temp file for share).
 - `ImageTools/Features/<Tool>/<Tool>View.swift` — one screen per tool, state lives in the view.
 - `ImageTools/Purchases/Store.swift` — RevenueCat entitlement state (`isPro`, `isLocked`). The paywall is a hard gate: every tool needs the `pro` entitlement.
+- `ImageTools/Analytics/Analytics.swift` — every event name in one place. Screens, jobs and paywall steps are reported explicitly; add events here, never call `PostHogSDK` from a view.
+
+## Analytics
+
+PostHog (EU host), project token is public and ships in the binary. The funnel is
+`tool_opened → photos_picked → job_started → job_finished/job_failed → result_saved`, plus
+`paywall_shown` / `paywall_closed`. `job_started` carries the options the user chose, which is the
+whole point: it answers which formats, presets, ratios and DPI values people actually use.
+
+- **Never send photo contents, file names or pixel data** — only counts, byte sizes, dimensions and
+  option names. No IDFA, so no ATT prompt and no "tracking" in the privacy sense.
+- `captureScreenViews` is off: SwiftUI screens are not view controllers, so autocapture would report
+  one screen for the whole app. `Analytics.toolOpened` sends the screen explicitly.
+- Because analytics ship, the App Privacy answer is **not** "Data Not Collected" any more — it is
+  Usage Data → Product Interaction, used for Analytics, not linked to identity, not used for tracking.
+  The app's own copy must not claim "nothing is uploaded"; it says photos stay on device, which is true.
 
 ## Monetization
 

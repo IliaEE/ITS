@@ -23,10 +23,12 @@
 		695D88F64DC85D3728352C0B /* ImageEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC014B0C23ACAA7D4C0AA09C /* ImageEngine.swift */; };
 		6C668BCC2181FC3DF392D17B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C52D669C2F61649F224EBAA2 /* Assets.xcassets */; };
 		7035ED36292D7BB5FA249432 /* Scaffold.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAA1A1AEEAE17E22700892A1 /* Scaffold.swift */; };
+		7899E474618767A33C0C2F36 /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = E638428FF99E6734BB7A85B1 /* Analytics.swift */; };
 		8610A3102AF1BA3B44ED011E /* Buttons.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F1F7168F9E8EBADF720789 /* Buttons.swift */; };
 		900D3B1C63E5FFEB37517360 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = 085DE5B1534C696136BE8474 /* RevenueCatUI */; };
 		92DC02A57B336ADBB86EE24D /* CompressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C92529B43A516FB37A18DE /* CompressView.swift */; };
 		A36E9F9C9ECE0EE3D78B1923 /* Inter_700Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DDE932BCDEC126FD240097FC /* Inter_700Bold.ttf */; };
+		A457182336AE5ED0EE114EE9 /* PostHog in Frameworks */ = {isa = PBXBuildFile; productRef = 4F13D9A92386156BEFAB4A32 /* PostHog */; };
 		A5FA9378885DEEE63A258175 /* Surfaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8361B042FF90C9F66B499E42 /* Surfaces.swift */; };
 		ADB38ABDA658FB19B7B157FB /* Inter_600SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FD5DF6695E354AFD94D08D9 /* Inter_600SemiBold.ttf */; };
 		B184BBBA22BB2345613DABA3 /* ConvertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E023F383CC3AFAC978633523 /* ConvertView.swift */; };
@@ -61,10 +63,11 @@
 		B4B1C6C3A72C5B4148053F38 /* Inter_500Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Inter_500Medium.ttf; sourceTree = "<group>"; };
 		C52D669C2F61649F224EBAA2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CAA1A1AEEAE17E22700892A1 /* Scaffold.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scaffold.swift; sourceTree = "<group>"; };
-		CFA01DC955E8D9B7473C9DAF /* ImageTools.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageTools.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CFA01DC955E8D9B7473C9DAF /* ImageTools.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ImageTools.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDE932BCDEC126FD240097FC /* Inter_700Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Inter_700Bold.ttf; sourceTree = "<group>"; };
 		DF01F73F6C1E0C8C549FE077 /* PickedImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickedImage.swift; sourceTree = "<group>"; };
 		E023F383CC3AFAC978633523 /* ConvertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertView.swift; sourceTree = "<group>"; };
+		E638428FF99E6734BB7A85B1 /* Analytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Analytics.swift; sourceTree = "<group>"; };
 		F86EA1F25E0DBDE040CEFEFA /* BlurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -75,6 +78,7 @@
 			files = (
 				5F1EF6E2135E58323B576F53 /* RevenueCat in Frameworks */,
 				900D3B1C63E5FFEB37517360 /* RevenueCatUI in Frameworks */,
+				A457182336AE5ED0EE114EE9 /* PostHog in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -121,6 +125,7 @@
 			isa = PBXGroup;
 			children = (
 				6F8A23941D77A76A33FCB67B /* Info.plist */,
+				8A92F4DD26579A973DE3C621 /* Analytics */,
 				C08F648D2CF94812F481CE4B /* App */,
 				E2BFA03C12AA69C273D30961 /* Design */,
 				629E32ABE923E94296B24EFB /* Engine */,
@@ -151,6 +156,14 @@
 				49947E0F6F1E7060640A1B53 /* Saver.swift */,
 			);
 			path = Engine;
+			sourceTree = "<group>";
+		};
+		8A92F4DD26579A973DE3C621 /* Analytics */ = {
+			isa = PBXGroup;
+			children = (
+				E638428FF99E6734BB7A85B1 /* Analytics.swift */,
+			);
+			path = Analytics;
 			sourceTree = "<group>";
 		};
 		9D4BA33D5DEA046F769F3A0F /* Home */ = {
@@ -254,6 +267,7 @@
 			packageProductDependencies = (
 				C64E56BDF772292EBC0FC7AD /* RevenueCat */,
 				085DE5B1534C696136BE8474 /* RevenueCatUI */,
+				4F13D9A92386156BEFAB4A32 /* PostHog */,
 			);
 			productName = ImageTools;
 			productReference = CFA01DC955E8D9B7473C9DAF /* ImageTools.app */;
@@ -284,6 +298,7 @@
 			mainGroup = F2195B2031A8CFFE1D202329;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				273A709304E86C01E1D896D7 /* XCRemoteSwiftPackageReference "posthog-ios" */,
 				2048C5E06ABD4428F6985992 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -317,6 +332,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7899E474618767A33C0C2F36 /* Analytics.swift in Sources */,
 				400FDC76D6BAD09FE1A4A849 /* BlurRenderer.swift in Sources */,
 				57AC6C0558CA636900855795 /* BlurView.swift in Sources */,
 				8610A3102AF1BA3B44ED011E /* Buttons.swift in Sources */,
@@ -350,8 +366,6 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = ImageTools/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Image Size & Photo to PDF";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -501,8 +515,6 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = ImageTools/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Image Size & Photo to PDF";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -546,6 +558,14 @@
 				minimumVersion = 5.0.0;
 			};
 		};
+		273A709304E86C01E1D896D7 /* XCRemoteSwiftPackageReference "posthog-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/PostHog/posthog-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.56.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -553,6 +573,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2048C5E06ABD4428F6985992 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
 			productName = RevenueCatUI;
+		};
+		4F13D9A92386156BEFAB4A32 /* PostHog */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 273A709304E86C01E1D896D7 /* XCRemoteSwiftPackageReference "posthog-ios" */;
+			productName = PostHog;
 		};
 		C64E56BDF772292EBC0FC7AD /* RevenueCat */ = {
 			isa = XCSwiftPackageProductDependency;

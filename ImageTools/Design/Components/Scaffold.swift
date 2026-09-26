@@ -189,11 +189,13 @@ struct ResultStat { let label: String; let value: String; var tone: Tone = .defa
 // Slides up once a job completes. Cobalt appears exactly once: on the check mark.
 struct ResultSheet: View {
     let title: String
+    let tool: String
     let stats: [ResultStat]
     let filename: String
     let primaryTitle: String
     var primaryIcon: String = "square.and.arrow.down"
     let onPrimary: () async throws -> Void
+    var count: Int = 1
     var shareURL: URL? = nil
     let onReset: () -> Void
 
@@ -223,7 +225,15 @@ struct ResultSheet: View {
                         Task {
                             busy = true
                             defer { busy = false }
-                            do { try await onPrimary(); withAnimation(.snappy) { done = true }; Haptics.success() } catch { self.error = error.localizedDescription; Haptics.error() }
+                            do {
+                                try await onPrimary()
+                                withAnimation(.snappy) { done = true }
+                                Haptics.success()
+                                Analytics.resultSaved(tool, method: "photos", count: count)
+                            } catch {
+                                self.error = error.localizedDescription
+                                Haptics.error()
+                            }
                         }
                     }
                     if let shareURL {
@@ -231,8 +241,15 @@ struct ResultSheet: View {
                             PillLabel(title: "Share", icon: "square.and.arrow.up", variant: .soft, size: .lg)
                         }
                         .buttonStyle(ScaleButtonStyle())
+                        // ShareLink has no completion callback, so the tap is what we can measure.
+                        .simultaneousGesture(TapGesture().onEnded {
+                            Analytics.resultSaved(tool, method: "share", count: count)
+                        })
                     }
-                    PillButton(title: "Start over", variant: .ghost, action: onReset)
+                    PillButton(title: "Start over", variant: .ghost) {
+                        Analytics.startedOver(tool)
+                        onReset()
+                    }
                 }
             }
         }

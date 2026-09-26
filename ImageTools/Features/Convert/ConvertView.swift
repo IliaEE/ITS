@@ -56,10 +56,12 @@ struct ConvertView: View {
             if case .images(let out) = result {
                 ResultSheet(
                     title: out.count > 1 ? "\(out.count) photos converted" : "Converted",
+                    tool: "convert",
                     stats: [ResultStat(label: "Format", value: formatLabel), ResultStat(label: "Before", value: Format_.bytes(totalIn)), ResultStat(label: "After", value: Format_.bytes(out.reduce(0) { $0 + $1.size }))],
                     filename: Naming.output(tool: "convert", ext: out[0].format.ext, index: 0, total: out.count),
                     primaryTitle: "Save to Photos",
                     onPrimary: { try await Saver.saveToPhotos(out.enumerated().map { NamedFile(data: $1.data, name: Naming.output(tool: "convert", ext: $1.format.ext, index: $0, total: out.count)) }) },
+                    count: out.count,
                     shareURL: out.count == 1 ? shareURL : nil,
                     onReset: reset
                 )
@@ -67,6 +69,7 @@ struct ConvertView: View {
             if case .pdf(_, let pages) = result, let shareURL {
                 ResultSheet(
                     title: "PDF ready",
+                    tool: "convert",
                     stats: [ResultStat(label: "Pages", value: String(pages)), ResultStat(label: "Size", value: Format_.bytes((try? Data(contentsOf: shareURL).count) ?? 0))],
                     filename: shareURL.lastPathComponent,
                     primaryTitle: "Save or share PDF",
@@ -86,7 +89,10 @@ struct ConvertView: View {
             guard !new.isEmpty else { return }
             Task {
                 let loaded = await PickedImage.load(new)
-                if !loaded.isEmpty { withAnimation(.gentle) { images = loaded; result = nil } }
+                if !loaded.isEmpty {
+                    withAnimation(.gentle) { images = loaded; result = nil }
+                    Analytics.photosPicked(.convert, count: loaded.count, format: loaded[0].format)
+                }
                 items = []
             }
         }
@@ -96,6 +102,8 @@ struct ConvertView: View {
     private func run() {
         busy = true
         let images = images, format = format
+        let startedAt = Date()
+        Analytics.jobStarted(.convert, count: images.count, options: ["format": formatLabel])
         Task.detached(priority: .userInitiated) {
             do {
                 let out: Result
@@ -116,9 +124,18 @@ struct ConvertView: View {
                     }
                     withAnimation(.gentle) { result = out }
                     busy = false
+                    let outBytes: Int = switch out {
+                    case .images(let list): list.reduce(0) { $0 + $1.size }
+                    case .pdf(let data, _): data.count
+                    }
+                    Analytics.jobFinished(.convert, count: images.count, startedAt: startedAt,
+                                          inBytes: images.reduce(0) { $0 + $1.size }, outBytes: outBytes)
                 }
             } catch {
-                await MainActor.run { self.error = error.localizedDescription; busy = false; Haptics.error() }
+                await MainActor.run {
+                    self.error = error.localizedDescription; busy = false; Haptics.error()
+                    Analytics.jobFailed(.convert, reason: error.localizedDescription)
+                }
             }
         }
     }

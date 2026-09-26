@@ -56,6 +56,7 @@ struct CompressView: View {
             if let image, let result {
                 ResultSheet(
                     title: "Compressed",
+                    tool: "compress",
                     stats: [ResultStat(label: "Before", value: Format_.bytes(image.size)), ResultStat(label: "After", value: Format_.bytes(result.size)), ResultStat(label: "Saved", value: Format_.savings(image.size, result.size), tone: .success)],
                     filename: Naming.output(tool: "compress", ext: "jpg"),
                     primaryTitle: "Save to Photos",
@@ -76,6 +77,7 @@ struct CompressView: View {
             Task {
                 if let loaded = try? await PickedImage.load(item) {
                     withAnimation(.gentle) { image = loaded; result = nil; estimate = nil }
+                    Analytics.photosPicked(.compress, count: 1, format: loaded.format)
                     full = try? loaded.fullImage()
                     scheduleEstimate()
                 }
@@ -99,9 +101,11 @@ struct CompressView: View {
     }
 
     private func run() {
-        guard let full else { return }
+        guard let full, let image else { return }
         busy = true
         let q = quality
+        let startedAt = Date()
+        Analytics.jobStarted(.compress, count: 1, options: ["quality": Int((q * 100).rounded())])
         Task.detached(priority: .userInitiated) {
             do {
                 let out = try ImageEngine.process(full, format: .jpg, quality: q)
@@ -109,9 +113,13 @@ struct CompressView: View {
                     shareURL = Saver.temporaryURL(NamedFile(data: out.data, name: Naming.output(tool: "compress", ext: "jpg")))
                     withAnimation(.gentle) { result = out }
                     busy = false
+                    Analytics.jobFinished(.compress, count: 1, startedAt: startedAt, inBytes: image.size, outBytes: out.size)
                 }
             } catch {
-                await MainActor.run { self.error = error.localizedDescription; busy = false; Haptics.error() }
+                await MainActor.run {
+                    self.error = error.localizedDescription; busy = false; Haptics.error()
+                    Analytics.jobFailed(.compress, reason: error.localizedDescription)
+                }
             }
         }
     }

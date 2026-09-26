@@ -100,6 +100,7 @@ struct BlurView: View {
             if let result {
                 ResultSheet(
                     title: "Blurred",
+                    tool: "blur",
                     stats: [ResultStat(label: "Strokes", value: String(strokes.count)), ResultStat(label: "Strength", value: "\(Int((strength * 100).rounded()))%"), ResultStat(label: "Size", value: Format_.bytes(result.size))],
                     filename: Naming.output(tool: "blur", ext: "jpg"),
                     primaryTitle: "Save to Photos",
@@ -121,6 +122,7 @@ struct BlurView: View {
             Task {
                 if let loaded = try? await PickedImage.load(item) {
                     withAnimation(.gentle) { image = loaded; strokes = []; result = nil; blurredPreview = nil }
+                    Analytics.photosPicked(.blur, count: 1, format: loaded.format)
                     scheduleBlur()
                 }
                 items = []
@@ -184,6 +186,12 @@ struct BlurView: View {
         guard let image, let lay = layout else { return }
         busy = true
         let strokes = strokes, s = sigma
+        let startedAt = Date()
+        Analytics.jobStarted(.blur, count: 1, options: [
+            "strokes": strokes.count,
+            "strength": Int((strength * 100).rounded()),
+            "brush": Int(brush),
+        ])
         Task.detached(priority: .userInitiated) {
             do {
                 let full = try image.fullImage()
@@ -193,9 +201,13 @@ struct BlurView: View {
                     shareURL = Saver.temporaryURL(NamedFile(data: out.data, name: Naming.output(tool: "blur", ext: "jpg")))
                     withAnimation(.gentle) { result = out }
                     busy = false
+                    Analytics.jobFinished(.blur, count: 1, startedAt: startedAt, inBytes: image.size, outBytes: out.size)
                 }
             } catch {
-                await MainActor.run { self.error = error.localizedDescription; busy = false; Haptics.error() }
+                await MainActor.run {
+                    self.error = error.localizedDescription; busy = false; Haptics.error()
+                    Analytics.jobFailed(.blur, reason: error.localizedDescription)
+                }
             }
         }
     }
