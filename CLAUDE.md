@@ -43,6 +43,10 @@ PostHog (EU host), project token is public and ships in the binary. The funnel i
 `paywall_shown` / `paywall_closed`. `job_started` carries the options the user chose, which is the
 whole point: it answers which formats, presets, ratios and DPI values people actually use.
 
+- The home screen shows the PostHog distinct id (tap copies it) and a cobalt "Request a feature"
+  button. `FeatureRequestView` lists clusters the ASO research measured but we did not build; a vote
+  sends `feature_requested` and flushes immediately. `docs/analytics/dashboard.md` says what the
+  PostHog dashboard must show.
 - **Never send photo contents, file names or pixel data** — only counts, byte sizes, dimensions and
   option names. No IDFA, so no ATT prompt and no "tracking" in the privacy sense.
 - `captureScreenViews` is off: SwiftUI screens are not view controllers, so autocapture would report

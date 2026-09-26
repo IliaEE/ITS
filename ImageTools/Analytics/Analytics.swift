@@ -19,7 +19,7 @@ enum Analytics {
         PostHogSDK.shared.setup(config)
     }
 
-    private static func capture(_ event: String, _ props: [String: Any] = [:]) {
+    fileprivate static func capture(_ event: String, _ props: [String: Any] = [:]) {
         PostHogSDK.shared.capture(event, properties: props)
     }
 
@@ -69,5 +69,23 @@ enum Analytics {
 
     static func paywallClosed(purchased: Bool) {
         capture("paywall_closed", ["purchased": purchased])
+    }
+}
+
+// MARK: - Identity & feature requests
+
+extension Analytics {
+    /// PostHog's anonymous id. Shown in the app so a user can quote it in support, and so a
+    /// request can be matched to the session that produced it. Not tied to any account.
+    static var userID: String { PostHogSDK.shared.getDistinctId() }
+
+    static func featureRequestOpened() {
+        capture("feature_request_opened")
+    }
+
+    static func featureRequested(_ ids: [String]) {
+        capture("feature_requested", ["features": ids, "count": ids.count])
+        // Requests are rare and the answer matters immediately, so don't wait for the batch timer.
+        PostHogSDK.shared.flush()
     }
 }
